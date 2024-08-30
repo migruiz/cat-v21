@@ -5,7 +5,7 @@
         "core": "*",
         "radio": "*",
         "microphone": "*",
-        "cat-extension": "github:robot-ie/cat#v0.4.2"
+        "cat-extension": "github:robot-ie/cat#v0.4.3"
     },
     "files": [
         "main.blocks",
