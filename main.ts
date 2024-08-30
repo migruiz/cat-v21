@@ -1,4 +1,7 @@
 input.onButtonPressed(Button.A, function () {
+    remoteControlled = true
+})
+input.onButtonPressed(Button.B, function () {
     remoteControlled = false
 })
 radio.onReceivedString(function (receivedString) {
@@ -13,7 +16,7 @@ radio.onReceivedString(function (receivedString) {
         tailOnFromControl = false
     }
 })
-function moveFromControl () {
+function moveFromControl() {
     if (controlCommand == "STOP") {
         cat.move(catImp.MoveAction.Stop)
     } else if (controlCommand == "FORWARD") {
@@ -36,6 +39,10 @@ let remoteControlled = false
 remoteControlled = false
 radio.setGroup(1)
 basic.forever(function () {
+    if (remoteControlled) {
+        moveFromControl()
+        return;
+    }
     if (location == 1) {
         cat.move(catImp.MoveAction.ForwardSlow)
         cat.move(catImp.MoveAction.ForwardSlow)
@@ -61,12 +68,10 @@ basic.forever(function () {
         cat.move(catImp.MoveAction.RightSlow)
     } else if (location == 8) {
         cat.move(catImp.MoveAction.Stop)
-    } else if (location == 0) {
-        moveFromControl()
     }
 })
 basic.forever(function () {
-    if (cat.pressingMouth() || location == 8 || lightsOnFromControl) {
+    if (cat.pressingMouth() || (!remoteControlled && location == 8) || (remoteControlled && lightsOnFromControl)) {
         cat.showRainbow()
         cat.rotateLights()
         basic.pause(400)
@@ -75,28 +80,33 @@ basic.forever(function () {
     }
 })
 basic.forever(function () {
-    if (cat.pressingRightEar() || tailOnFromControl || location == 8) {
+    if (cat.pressingRightEar() || (remoteControlled && tailOnFromControl) || (!remoteControlled && location == 8)) {
         cat.moveTail()
     } else {
         cat.stopTail()
     }
 })
 basic.forever(function () {
-    if (location == 8) {
-        basic.showIcon(IconNames.Heart)
-        basic.showIcon(IconNames.SmallHeart)
-    } else if (location > 0 && location < 8) {
-        basic.showIcon(IconNames.Diamond)
-        basic.showIcon(IconNames.SmallDiamond)
-    } else {
-        basic.showIcon(IconNames.Sad)
+    if (remoteControlled) {
+        basic.showString("R")
+    }
+    else {
+        if (location == 8) {
+            basic.showIcon(IconNames.Heart)
+            basic.showIcon(IconNames.SmallHeart)
+        } else if (location > 0 && location < 8) {
+            basic.showIcon(IconNames.Diamond)
+            basic.showIcon(IconNames.SmallDiamond)
+        } else {
+            basic.showIcon(IconNames.Sad)
+        }
     }
 })
 basic.forever(function () {
     location = cat.objectLocation()
 })
 basic.forever(function () {
-    if (cat.pressingLeftEar() || location == 8) {
+    if (cat.pressingLeftEar() || (!remoteControlled && location == 8)) {
         cat.purr()
     } else {
         cat.stopPurr()
